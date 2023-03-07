@@ -1,0 +1,41 @@
+body {
+  font-family: sans-serif;
+  padding: 0 20px;
+}
+
+h1 {
+  color: blueviolet;
+  text-align: center;
+  font-weight: 900;
+  margin: 0;
+  font-size: 34px;
+  line-height: 48px;
+}
+
+h1 h2,
+h3 {
+  color: #231d3c;
+}
+
+.logo {
+  display: block;
+  margin: 30px auto;
+  width: 150px;
+}
+
+.weather-app {
+  border: 2px solid #82a7d8;
+  padding: 17px;
+  margin: 25px auto;
+  border-radius: 15px;
+  max-width: 750px;
+}
+li {
+  font-style: bold;
+  color: blueviolet;
+  list-style: none;
+}
+.temperature,
+.units {
+  color: blueviolet;
+}
