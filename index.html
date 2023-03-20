@@ -48,7 +48,13 @@
           <div class="col-6">
             <div class="clearfix">
               <div class="float-left">
-                <img src="" alt="Clear" src="weather.png" id="icon" class="float-left" />
+                <img
+                  src=""
+                  alt="Clear"
+                  src="weather.png"
+                  id="icon"
+                  class="float-left"
+                />
                 <strong id="temperature"></strong>
                 <span class="units"
                   ><a href="#" id="celsius-link" class="active">°C</a> |
@@ -63,6 +69,9 @@
               <li>Wind: <span id="wind"></span> km/h</li>
             </ul>
           </div>
+        </div>
+        <div id="WeatherForecast" class="row">
+        
         </div>
       </div>
     </div>
@@ -100,6 +109,26 @@
 
       let celsiusTemperature = null;
 
+      function getDay(dateParam) {
+        let date = new Date(dateParam * 1000);
+        let day = date.getDay();
+        let days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+        console.log(days[day]);
+        return days[day];
+      }
+
+      function maxTemperature() {
+        let temperature = Math.round(props.data.temperature.maximum);
+
+        return `${temperature}°`;
+      }
+
+      function minTemperature() {
+        let temperature = Math.round(props.data.temperature.minimum);
+
+        return `${temperature}°`;
+      }
+
       function displayWeather(response) {
         console.log(response);
 
@@ -109,9 +138,7 @@
         document.querySelector("#temperature").innerHTML = Math.round(
           response.data.main.temp
         );
-        celsiusTemperature = Math.round(
-          response.data.main.temp
-        );
+        celsiusTemperature = Math.round(response.data.main.temp);
 
         document.querySelector("#humidity").innerHTML =
           response.data.main.humidity;
@@ -122,15 +149,51 @@
           response.data.weather[0].main;
       }
 
+      function displayNextFiveDaysWeather(response) {
+
+        let container = document.getElementById("WeatherForecast");
+        for (let i = 0; i < response.data.daily.length; i++) {
+          let divColumn = document.createElement("div");
+          divColumn.className = "col";
+          container.appendChild(divColumn);
+          let divPreview = document.createElement("div");
+          divPreview.className = "WeatherForecastPreview";
+          divColumn.appendChild(divPreview);
+          let divTime = document.createElement("div");
+          divTime.className = "forecast-time";
+          divTime.textContent += getDay(response.data.daily[i].time);
+          divPreview.appendChild(divTime);
+          let image = document.createElement("img");
+          image.src = `${response.data.daily[i].condition.icon_url}`;
+          image.className = 'weatherIcon';
+          divPreview.appendChild(image);
+          let temp = document.createElement("div");
+          temp.className = 'forecast-temperature';
+          const maxTempSpan = document.createElement('span');
+          maxTempSpan.classList.add('forecast-temperature-max');
+          maxTempSpan.textContent += Math.round(response.data.daily[i].temperature.maximum) + '°    ';
+          divPreview.appendChild(maxTempSpan);
+          const minTempSpan = document.createElement('span');
+          minTempSpan.classList.add('forecast-temperature-min');
+          minTempSpan.textContent += '  ' +Math.round(response.data.daily[i].temperature.minimum) + '°';
+          divPreview.appendChild(minTempSpan);
+          if(i === 5) {
+            break;
+          }
+        }
+      }
+
       function handleSubmit(event) {
+        localStorage.clear();
         event.preventDefault();
         let city = document.querySelector("#city-input").value;
         getCityWeather(city);
+        getWeeklyWeatherDetails(city);
       }
 
-      function searchLocation(position) {
-        let apiKey = "6bfa54f242cbb59343d4e58db578dc61";
-        let apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${position.coords.latitude}&lon=${position.coords.longitude}&appid=${apiKey}&units=metric`;
+      function searchLocation(cityName) {
+        let apiKey = "eac360db5fc86ft86450f3693e73o43f";
+        let apiUrl = `https://api.shecodes.io/weather/v1/forecast?query=${cityName}=${apiKey}&units=metric`;
 
         axios.get(apiUrl).then(displayWeather);
       }
@@ -145,6 +208,13 @@
         let url = `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}&units=metric`;
 
         axios.get(url).then(displayWeather);
+      }
+
+      function getWeeklyWeatherDetails(cityName) {
+        let apiKey = "eac360db5fc86ft86450f3693e73o43f";
+        let url = `https://api.shecodes.io/weather/v1/forecast?query=${cityName}&key=${apiKey}&units=metric`;
+
+        axios.get(url).then(displayNextFiveDaysWeather);
       }
 
       let dateElement = document.querySelector("#date");
@@ -181,7 +251,8 @@
       let fahrenheitLink = document.querySelector("#fahrenheit-link");
       fahrenheitLink.addEventListener("click", displayFahrenheitTemperature);
 
-      getCityWeather("New Jersey");
+      getCityWeather("East Windsor");
+      getWeeklyWeatherDetails("East Windsor");
     </script>
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
